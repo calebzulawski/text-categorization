@@ -67,7 +67,7 @@ class Classifier():
     def classify(self, directory, documents, probabilities):
         predictions = []
         for document in documents:
-            f = self.__statistics__(direectory, document)
+            f = self.__statistics__(directory, document)
             maxClass = None
             maxProb = 0
             for c in probabilities:

@@ -12,7 +12,7 @@ def load_corpus_file(filename):
     files = []
     directory = os.path.dirname(filename)
     for line in open(filename, 'r'):
-        files.append(line)
+        files.append(line.rstrip())
     return (directory, files)
 
 def write_labeled_corpus_file(filename, documents, labels):
