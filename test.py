@@ -7,12 +7,12 @@ classifier.load_stop_words('stopwords.txt')
 
 directory, files = corpora.load_labeled_corpus_file('corpora/corpus1_train.labels')
 
-stats = classifier.load_corpus_statistics(directory, files)
+frequency, terms = classifier.load_corpus_statistics(directory, files)
 
-weights = classifier.calculate_weights(stats)
+weights = classifier.calculate_probabilities(terms, frequency, files)
 
 directory, testfiles = corpora.load_corpus_file('corpora/corpus1_test.list')
 
-labels = classifier.classify(weights, directory, testfiles)
+labels = classifier.classify(directory, testfiles, probabilities)
 
 corpora.write_labeled_corpus_file('corpus1_test.predictions', testfiles, labels)
