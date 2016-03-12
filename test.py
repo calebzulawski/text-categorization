@@ -15,4 +15,6 @@ directory, testfiles = corpora.load_corpus_file('corpora/corpus1_test.list')
 
 labels = classifier.classify(directory, testfiles, probabilities)
 
+print(labels)
+
 corpora.write_labeled_corpus_file('corpus1_test.predictions', testfiles, labels)

@@ -7,7 +7,7 @@ import os
 class Classifier():
     def __init__(self):
         self.stopwords = []
-        self.stemmer = nltk.PorterStemmer()
+        self.stemmer = nltk.stem.snowball.SnowballStemmer('english')
 
     def load_stop_words(self, filename):
         with open(filename, 'r') as f:
@@ -21,10 +21,11 @@ class Classifier():
             for sent in nltk.sent_tokenize(data):
                 for word in nltk.word_tokenize(sent):
                     if word not in self.stopwords and re.search('[a-z0-9]', word):
-                        if word in frequency:
-                            frequency[word] += 1
+                        stemmed = self.stemmer.stem(word)
+                        if stemmed in frequency:
+                            frequency[stemmed] += 1
                         else:
-                            frequency[word] = 1
+                            frequency[stemmed] = 1
             return frequency
 
     def load_corpus_statistics(self, directory, documents):
@@ -69,12 +70,12 @@ class Classifier():
         for document in documents:
             f = self.__statistics__(directory, document)
             maxClass = None
-            maxProb = 0
+            maxProb = float('-inf')
             for c in probabilities:
-                prob = 1
+                prob = 0
                 for term in f:
                     if term in probabilities[c]:
-                        prob *= (probabilities[c][term] ** f[term])
+                        prob += numpy.log(probabilities[c][term]) * f[term]
                 if prob > maxProb:
                     maxClass = c
                     maxProb = prob
