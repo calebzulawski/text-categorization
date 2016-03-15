@@ -44,7 +44,11 @@ class Classifier():
         documents = list(frequencies.keys())
         classes = set(labels.values())
 
+        prior = {}
         probabilities = {}
+
+        for c in classes:
+            prior[c] = list(labels.values()).count(c)/len(list(labels.values()))
 
         for c in classes:
             # Calculate denominator
@@ -63,20 +67,21 @@ class Classifier():
                     else:
                         probabilities[c][term] = (1 + frequencies[d][term])/denom # smoothing
 
-        return probabilities
+        return (prior, probabilities)
 
-    def classify(self, directory, documents, probabilities):
+    def classify(self, directory, documents, prior, probabilities):
         predictions = []
         for document in documents:
             f = self.__statistics__(directory, document)
             maxClass = None
             maxProb = float('-inf')
             for c in probabilities:
-                prob = 0
+                prob = numpy.log(prior[c])
                 for term in f:
                     if term in probabilities[c]:
                         prob += numpy.log(probabilities[c][term]) * f[term]
                 if prob > maxProb:
+                    print(prob)
                     maxClass = c
                     maxProb = prob
             predictions.append(maxClass)

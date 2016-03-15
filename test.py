@@ -9,11 +9,12 @@ directory, files = corpora.load_labeled_corpus_file('corpora/corpus1_train.label
 
 frequency, terms = classifier.load_corpus_statistics(directory, files)
 
-probabilities = classifier.calculate_probabilities(terms, frequency, files)
+prior, probabilities = classifier.calculate_probabilities(terms, frequency, files)
+print(prior)
 
 directory, testfiles = corpora.load_corpus_file('corpora/corpus1_test.list')
 
-labels = classifier.classify(directory, testfiles, probabilities)
+labels = classifier.classify(directory, testfiles, prior, probabilities)
 
 print(labels)
 
