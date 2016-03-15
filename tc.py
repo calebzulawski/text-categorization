@@ -28,58 +28,68 @@ class Classifier():
                             frequency[stemmed] = 1
             return frequency
 
-    def load_corpus_statistics(self, directory, documents):
+    def load_corpus_statistics(self, directory, labeledDocuments):
         # Calculate frequencies per document
-        f = {}
-        terms = []
-        for document in documents:
-            f[document] = self.__statistics__(directory, document)
-            for term in f[document]:
-                if term not in terms:
-                    terms.append(term)
+        countByDoc = {}
+        countByClass = {}
+        vocabulary = []
+        for document, label in labeledDocuments.items():
+            if label not in countByClass:
+                countByClass[label] = {}
 
-        return (f, terms)
+            countByDoc[document] = self.__statistics__(directory, document)
+            
+            for term, count in countByDoc[document].items():
+                if term not in vocabulary:
+                    vocabulary.append(term)
+                if term not in countByClass[label]:
+                    countByClass[label][term] = count;
+                else:
+                    countByClass[label][term] += count;
 
-    def calculate_probabilities(self, terms, frequencies, labels):
-        documents = list(frequencies.keys())
-        classes = set(labels.values())
+        return (countByDoc, countByClass, vocabulary)
+
+    def calculate_probabilities(self, vocabulary, countByDoc, countByClass, labeledDocuments):
+        documents = list(labeledDocuments.keys())
+        classes = set(labeledDocuments.values())
 
         prior = {}
-        probabilities = {}
+        conditional = {}
 
         for c in classes:
-            prior[c] = list(labels.values()).count(c)/len(list(labels.values()))
+            print('Calculating for class ' + str(c))
+            
+            conditional[c] = {}
+            
+            # Count documents in class
+            Nc = list(labeledDocuments.values()).count(c)
+            print('Nc = ' + str(Nc))
 
-        for c in classes:
-            # Calculate denominator
-            denom = len(terms); # smoothing
-            classdocs = [d for d in documents if labels[d] == c]
-            for d in classdocs:
-                denom += numpy.sum(list(frequencies[d].values()))
+            # Calculate prior for class
+            prior[c] = Nc/len(documents)
+            print('P(C = ' + str(c) + ') = ' + str(prior[c]))
 
-            # Calculate probabilities
-            probabilities[c] = {}
+            # Calculate conditional term probabilities
+            denominator = numpy.sum(list(countByClass[c].values())) + len(vocabulary)
+            for t in vocabulary:
+                if t in countByClass[c]:
+                    conditional[c][t] = (countByClass[c][t] + 1) / denominator
+                else:
+                    conditional[c][t] = 1 / denominator
 
-            for d in classdocs:
-                for term in frequencies[d]:
-                    if term in probabilities[c]:
-                        probabilities[c][term] += frequencies[d][term]/denom
-                    else:
-                        probabilities[c][term] = (1 + frequencies[d][term])/denom # smoothing
+        return (prior, conditional)
 
-        return (prior, probabilities)
-
-    def classify(self, directory, documents, prior, probabilities):
+    def classify(self, directory, documents, prior, conditional):
         predictions = []
         for document in documents:
             f = self.__statistics__(directory, document)
             maxClass = None
             maxProb = float('-inf')
-            for c in probabilities:
+            for c in prior:
                 prob = numpy.log(prior[c])
                 for term in f:
-                    if term in probabilities[c]:
-                        prob += numpy.log(probabilities[c][term]) * f[term]
+                    if term in conditional[c]:
+                        prob += numpy.log(conditional[c][term]) * f[term]
                 if prob > maxProb:
                     print(prob)
                     maxClass = c
