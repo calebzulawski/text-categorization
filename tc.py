@@ -38,7 +38,7 @@ class Classifier():
                 countByClass[label] = {}
 
             countByDoc[document] = self.__statistics__(directory, document)
-            
+
             for term, count in countByDoc[document].items():
                 if term not in vocabulary:
                     vocabulary.append(term)
@@ -58,9 +58,9 @@ class Classifier():
 
         for c in classes:
             print('Calculating for class ' + str(c))
-            
+
             conditional[c] = {}
-            
+
             # Count documents in class
             Nc = list(labeledDocuments.values()).count(c)
             print('Nc = ' + str(Nc))
@@ -91,7 +91,6 @@ class Classifier():
                     if term in conditional[c]:
                         prob += numpy.log(conditional[c][term]) * f[term]
                 if prob > maxProb:
-                    print(prob)
                     maxClass = c
                     maxProb = prob
             predictions.append(maxClass)
