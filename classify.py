@@ -12,7 +12,7 @@ parser.add_argument('-s', '--stopwords', default='stopwords.txt')
 args = parser.parse_args()
 
 # Load the classifier object
-classifier = tc.Classifier();
+classifier = tc.Classifier()
 print('Loading stopwords')
 classifier.load_stop_words(args.stopwords)
 

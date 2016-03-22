@@ -57,17 +57,13 @@ class Classifier():
         conditional = {}
 
         for c in classes:
-            print('Calculating for class ' + str(c))
-
             conditional[c] = {}
 
             # Count documents in class
             Nc = list(labeledDocuments.values()).count(c)
-            print('Nc = ' + str(Nc))
 
             # Calculate prior for class
             prior[c] = Nc/len(documents)
-            print('P(C = ' + str(c) + ') = ' + str(prior[c]))
 
             # Calculate conditional term probabilities
             denominator = numpy.sum(list(countByClass[c].values())) + len(vocabulary)
