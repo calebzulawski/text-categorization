@@ -8,6 +8,7 @@ class Classifier():
     def __init__(self):
         self.stopwords = []
         self.stemmer = nltk.stem.snowball.SnowballStemmer('english')
+        self.lemmatizer = nltk.stem.WordNetLemmatizer()
 
     def load_stop_words(self, filename):
         with open(filename, 'r') as f:
@@ -20,12 +21,12 @@ class Classifier():
             frequency = {}
             for sent in nltk.sent_tokenize(data):
                 for word in nltk.word_tokenize(sent):
-                    if word not in self.stopwords and re.search('[a-z0-9]', word):
-                        stemmed = self.stemmer.stem(word)
-                        if stemmed in frequency:
-                            frequency[stemmed] += 1
+                    if word not in self.stopwords and re.search('[a-z]', word):
+                        lemmatized = self.lemmatizer.lemmatize(word)
+                        if lemmatized in frequency:
+                            frequency[lemmatized] += 1
                         else:
-                            frequency[stemmed] = 1
+                            frequency[lemmatized] = 1
             return frequency
 
     def load_corpus_statistics(self, directory, labeledDocuments):
